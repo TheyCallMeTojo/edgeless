@@ -12,6 +12,7 @@ class Program
         if (!IsAdministrator())
         {
             Console.WriteLine("Please run this application as an administrator.");
+            Add2Log("Main", "Please run this application as an administrator.");
             Console.Read();
             return;
         }
@@ -49,10 +50,12 @@ class Program
                     process.Kill();
                     process.WaitForExit();
                     Console.WriteLine($"Terminated process: {processName}");
+                    Add2Log("TerminateEdgeProcess", $"Terminated process: {processName}");
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Failed to terminate process {processName}: {ex.Message}");
+                    Add2Log("TerminateEdgeProcess", $"Exception: {ex.Message}");
                 }
             }
         }
@@ -88,21 +91,25 @@ class Program
                 {
                     Directory.Delete(path, true);
                     Console.WriteLine($"Deleted directory: {path}");
+                    Add2Log("RemoveEdgeDirectories", $"Deleted directory: {path}");
                 }
                 else if (File.Exists(path))
                 {
                     TakeOwnership(path);
                     File.Delete(path);
                     Console.WriteLine($"Deleted file: {path}");
+                    Add2Log("RemoveEdgeDirectories", $"Deleted file: {path}");
                 }
             }
             catch (UnauthorizedAccessException)
             {
                 Console.WriteLine($"Access to the path '{path}' is denied. Run the application as an administrator.");
+                Add2Log("RemoveEdgeDirectories", $"Access to the path '{path}' is denied. Run the application as an administrator.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error deleting {path}: {ex.Message}");
+                Add2Log("RemoveEdgeDirectories", $"Error deleting {path}: {ex.Message}");
             }
         }
     }
@@ -125,11 +132,13 @@ class Program
                 {
                     Registry.LocalMachine.DeleteSubKeyTree(key);
                     Console.WriteLine($"Deleted registry key: {key}");
+                    Add2Log("RemoveEdgeRegistryEntries", $"Deleted registry key: {key}");
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error deleting registry key {key}: {ex.Message}");
+                Add2Log("RemoveEdgeRegistryEntries", $"Error deleting registry key {key}: {ex.Message}");
             }
         }
     }
@@ -153,11 +162,13 @@ class Program
             }
 
             Console.WriteLine("Take Ownership and Permission Granted: " + filePath);
+            Add2Log("TakeOwnership", $"Take Ownership and Permissions Granted for: {filePath}");
             return true;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error taking ownership: {ex.Message}");
+            Add2Log("TakeOwnership", $"Error taking ownership: {ex.Message}");
             return false;
         }
     }
@@ -188,17 +199,20 @@ class Program
             if (process.ExitCode == 0)
             {
                 Console.WriteLine($"{fileName} OK: {arguments}");
+                Add2Log("RunProcessAsAdmin", $"{fileName} OK: {arguments}");
                 return true;
             }
             else
             {
                 Console.WriteLine(process.StandardError.ReadToEnd());
+                Add2Log("RunProcessAsAdmin", process.StandardError.ReadToEnd());
                 return false;
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error running {fileName}: {ex.Message}");
+            Add2Log("RunProcessAsAdmin", $"Error running {fileName}: {ex.Message}");
             return false;
         }
     }
@@ -219,6 +233,7 @@ class Program
         {
             Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
             Environment.GetFolderPath(Environment.SpecialFolder.StartMenu),
+            Environment.GetFolderPath(Environment.SpecialFolder.StartMenu) + @"\programs", //This shows up if you manually install Edge
             Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu),
             Environment.GetFolderPath(Environment.SpecialFolder.CommonPrograms)
         };
@@ -261,12 +276,30 @@ class Program
                 {
                     File.Delete(shortcutPath);
                     Console.WriteLine($"Deleted shortcut: {shortcutPath}");
+                    Add2Log("RemoveShortcutsFromDirectory", $"Deleted shortcut: {shortcutPath}");
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error deleting {shortcutPath}: {ex.Message}");
+                Add2Log("RemoveShortcutsFromDirectory", $"Error deleting {shortcutPath}: {ex.Message}");
             }
         }
     }
+
+    static void Add2Log(string Method, string Message)
+    {
+        try
+        {
+            string logFilePath = "log.txt";
+            using StreamWriter writer = new StreamWriter(logFilePath, true);
+            writer.WriteLine($"{DateTime.Now}: In {Method} : {Message}");
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
 }
