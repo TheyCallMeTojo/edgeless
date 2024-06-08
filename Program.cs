@@ -235,9 +235,11 @@ class Program
             Environment.GetFolderPath(Environment.SpecialFolder.StartMenu),
             Environment.GetFolderPath(Environment.SpecialFolder.StartMenu) + @"\programs", //This shows up if you manually install Edge
             Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu),
-            Environment.GetFolderPath(Environment.SpecialFolder.CommonPrograms)
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonPrograms),
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)+ @"\Microsoft\Internet Explorer\Quick Launch",
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)+ @"\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar"
         };
-
+        
         // Edge shortcut filenames
         string[] edgeShortcuts =
         {
